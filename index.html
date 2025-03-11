@@ -3,77 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket Reservation System</title>
+    <title>Travel Reservation System</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Ticket Reservation System</h1>
-    </header>
-
-    <section id="auth-section">
-        <div id="register-form" class="auth-form">
-            <h2>Register</h2>
-            <form id="register">
-                <label for="username">Username:</label>
-                <input type="text" id="username" required><br>
-
-                <label for="email">Email:</label>
-                <input type="email" id="email" required><br>
-
-                <label for="password">Password:</label>
-                <input type="password" id="password" required><br>
-
-                <button type="submit">Register</button>
-            </form>
+    <div class="container">
+        <div id="registration" class="form-group">
+            <h2>Registration</h2>
+            <input type="text" id="regName" placeholder="Name" required>
+            <input type="email" id="regEmail" placeholder="Email" required>
+            <input type="tel" id="regContact" placeholder="11-Digit Contact" pattern="[0-9]{11}" required>
+            <input type="password" id="regPassword" placeholder="Password" required>
+            <button onclick="register()">Register</button>
         </div>
 
-        <div id="login-form" class="auth-form hidden">
+        <div id="login" class="form-group hidden">
             <h2>Login</h2>
-            <form id="login">
-                <label for="login-username">Username:</label>
-                <input type="text" id="login-username" required><br>
-
-                <label for="login-password">Password:</label>
-                <input type="password" id="login-password" required><br>
-
-                <button type="submit">Login</button>
-            </form>
+            <input type="email" id="loginEmail" placeholder="Email" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button onclick="login()">Login</button>
         </div>
-    </section>
 
-    <section id="booking-section" class="hidden">
-        <h2>Book Your Ticket</h2>
-        <form id="ticket-booking-form">
-            <label for="from-location">From:</label>
-            <input type="text" id="from-location" required><br>
-
-            <label for="to-location">To:</label>
-            <input type="text" id="to-location" required><br>
-
-            <label for="transport-mode">Mode of Transport:</label>
-            <select id="transport-mode" required>
+        <div id="booking" class="form-group hidden">
+            <h2>Booking</h2>
+            <select id="vehicle">
                 <option value="bus">Bus</option>
                 <option value="train">Train</option>
                 <option value="airplane">Airplane</option>
-            </select><br>
-
-            <label for="travel-date">Travel Date:</label>
-            <input type="date" id="travel-date" required><br>
-
-            <button type="submit">Book Now</button>
-        </form>
+            </select>
+            <input type="text" id="from" placeholder="From" required>
+            <input type="text" id="to" placeholder="To" required>
+            <input type="number" id="amount" placeholder="Amount" required>
+            <div id="seatSelection"></div>
+            <button onclick="book()">Book</button>
+        </div>
 
         <div id="confirmation" class="hidden">
-            <h3>Booking Confirmation</h3>
-            <p id="confirmation-details"></p>
+            <h2>Confirmation</h2>
+            <p id="confirmationDetails"></p>
+            <button id="refund" onclick="refund()">Refund</button>
         </div>
-    </section>
+    </div>
 
-    <footer>
-        <p>@itpRakib  2025 Ticket Reservation. All rights reserved.</p>
-    </footer>
-
-   <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

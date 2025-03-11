@@ -1,81 +1,120 @@
- // State Variables
- let loggedIn = false;
- let userData = {};
+let users = [];
+let loggedInUser = null;
+let selectedSeat = null;
+let bookedSeats = [];
+let currentBooking = null;
 
- // Auth Form Toggle
- document.getElementById('register-form').classList.remove('hidden');
- document.getElementById('login-form').classList.add('hidden');
- document.getElementById('booking-section').classList.add('hidden');
+function register() {
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const contact = document.getElementById('regContact').value;
+    const password = document.getElementById('regPassword').value;
 
- // Register user
- document.getElementById('register').addEventListener('submit', function(event) {
-     event.preventDefault();
-     const username = document.getElementById('username').value;
-     const email = document.getElementById('email').value;
-     const password = document.getElementById('password').value;
+    if (users.find(user => user.email === email)) {
+        alert('Email already registered.');
+        return;
+    }
 
-     // Save user data in localStorage
-     localStorage.setItem('username', username);
-     localStorage.setItem('email', email);
-     localStorage.setItem('password', password);
+    users.push({ name, email, contact, password });
+    alert('Registration successful.');
+    showLogin();
+}
 
-     alert("Registration Successful! You can now login.");
-     document.getElementById('register-form').classList.add('hidden');
-     document.getElementById('login-form').classList.remove('hidden');
- });
+function login() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const user = users.find(user => user.email === email && user.password === password);
 
- // Login user
- document.getElementById('login').addEventListener('submit', function(event) {
-     event.preventDefault();
-     const username = document.getElementById('login-username').value;
-     const password = document.getElementById('login-password').value;
+    if (user) {
+        loggedInUser = user;
+        alert('Login successful.');
+        showBooking();
+    } else {
+        alert('Invalid credentials.');
+    }
+}
 
-     // Check if user exists in localStorage
-     const storedUsername = localStorage.getItem('username');
-     const storedPassword = localStorage.getItem('password');
+function showLogin() {
+    document.getElementById('registration').classList.add('hidden');
+    document.getElementById('login').classList.remove('hidden');
+    document.getElementById('booking').classList.add('hidden');
+    document.getElementById('confirmation').classList.add('hidden');
+}
 
-     if (username === storedUsername && password === storedPassword) {
-         alert("Login Successful!");
-         loggedIn = true;
-         document.getElementById('login-form').classList.add('hidden');
-         document.getElementById('booking-section').classList.remove('hidden');
-     } else {
-         alert("Invalid credentials. Please try again.");
-     }
- });
+function showBooking() {
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('booking').classList.remove('hidden');
+    document.getElementById('confirmation').classList.add('hidden');
+    generateSeatGrid();
+}
 
- // Booking ticket
- document.getElementById('ticket-booking-form').addEventListener('submit', function(event) {
-     event.preventDefault();
+function generateSeatGrid() {
+    const seatSelection = document.getElementById('seatSelection');
+    seatSelection.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.classList.add('seat-grid');
 
-     const from = document.getElementById('from-location').value;
-     const to = document.getElementById('to-location').value;
-     const transportMode = document.getElementById('transport-mode').value;
-     const travelDate = document.getElementById('travel-date').value;
+    for (let i = 1; i <= 52; i++) {
+        const seat = document.createElement('div');
+        seat.classList.add('seat');
+        seat.textContent = i;
+        seat.dataset.seatNumber = i;
 
-     // Simple price calculation based on transport mode
-     let price = 0;
-     switch (transportMode) {
-         case 'bus':
-             price = 50;
-             break;
-         case 'train':
-             price = 100;
-             break;
-         case 'airplane':
-             price = 200;
-             break;
-     }
+        if (bookedSeats.includes(i)) {
+            seat.classList.add('unavailable');
+        } else {
+            seat.addEventListener('click', () => {
+                if (selectedSeat) {
+                    selectedSeat.classList.remove('selected');
+                }
+                seat.classList.add('selected');
+                selectedSeat = seat;
+            });
+        }
+        grid.appendChild(seat);
+    }
+    seatSelection.appendChild(grid);
+}
 
-     // Show booking confirmation
-     document.getElementById('confirmation').classList.remove('hidden');
-     document.getElementById('confirmation-details').innerHTML = `
-         <strong>Booking Details:</strong><br>
-         From: ${from}<br>
-         To: ${to}<br>
-         Transport: ${transportMode.charAt(0).toUpperCase() + transportMode.slice(1)}<br>
-         Travel Date: ${travelDate}<br>
-         Amount: $${price}<br>
-         <strong>Booking Confirmed!</strong>
-     `;
- });
+function book() {
+    if (!selectedSeat) {
+        alert('Please select a seat.');
+        return;
+    }
+
+    const vehicle = document.getElementById('vehicle').value;
+    const from = document.getElementById('from').value;
+    const to = document.getElementById('to').value;
+    const amount = document.getElementById('amount').value;
+    const seatNumber = parseInt(selectedSeat.dataset.seatNumber);
+
+    bookedSeats.push(seatNumber);
+    currentBooking = {
+        vehicle,
+        from,
+        to,
+        amount,
+        seat: seatNumber,
+        user: loggedInUser
+    };
+
+    showConfirmation();
+}
+
+function showConfirmation() {
+    document.getElementById('booking').classList.add('hidden');
+    document.getElementById('confirmation').classList.remove('hidden');
+    document.getElementById('confirmationDetails').textContent = `Vehicle: ${currentBooking.vehicle}, From: ${currentBooking.from}, To: ${currentBooking.to}, Amount: ${currentBooking.amount}, Seat: ${currentBooking.seat}`;
+}
+
+function refund() {
+    if (currentBooking) {
+        const index = bookedSeats.indexOf(currentBooking.seat);
+        if (index > -1) {
+            bookedSeats.splice(index, 1);
+        }
+        alert('Refund successful.');
+        currentBooking = null;
+        showBooking();
+    }
+}
